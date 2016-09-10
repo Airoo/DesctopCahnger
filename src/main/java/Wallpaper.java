@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
 
 /**
  * Class for change windows wallpaper
@@ -29,7 +30,6 @@ public class Wallpaper extends JFrame {
     }
 
     public void createGUI() {
-
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JPanel panel = new JPanel();
@@ -45,7 +45,7 @@ public class Wallpaper extends JFrame {
 
         button1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                User32.INSTANCE.SystemParametersInfo(0x0014, 0, "ass.jpg", 1);
+                User32.INSTANCE.SystemParametersInfo(0x0014, 0, "C:\\ass.jpg", 1);
                 textField.setText(e.getActionCommand());
             }
         });
@@ -54,7 +54,8 @@ public class Wallpaper extends JFrame {
         setPreferredSize(new Dimension(320, 100));
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        copyFileUsingStream(new File("ass.jpg"), new File("C:\\ass.jpg"));
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 JFrame.setDefaultLookAndFeelDecorated(true);
@@ -64,5 +65,23 @@ public class Wallpaper extends JFrame {
                 frame.setVisible(true);
             }
         });
+    }
+
+    private static void copyFileUsingStream(File source, File dest) throws IOException {
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            //is = new FileInputStream(source);
+            is = Wallpaper.class.getClassLoader().getResourceAsStream("ass.jpg");
+            os = new FileOutputStream(dest);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+        } finally {
+            is.close();
+            os.close();
+        }
     }
 }
